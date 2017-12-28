@@ -47,7 +47,7 @@ public class LogAspect {
         // 手动执行目标方法
         Object obj = joinPoint.proceed();
 
-        logger.info("环绕通知执行方法后");
+        logger.info("环绕通知执行方法后。");
         return obj;
     }
 
