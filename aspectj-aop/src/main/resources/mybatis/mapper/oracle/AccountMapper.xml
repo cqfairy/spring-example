@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.xx.spring.example.aspectj.aop.dao.AccountMapper" >
+  <resultMap id="BaseResultMap" type="account" >
+    <result column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="PASSWORD" property="password" jdbcType="VARCHAR" />
+    <result column="STATUS" property="status" jdbcType="DECIMAL" />
+    <association property="userInfo" column="USER_ID" javaType="com.xx.common.entity.UserInfo" select="selectUserInfoById">
+      <id property="id" column="ID"></id>
+      <result property="name" column="NAME"></result>
+      <result property="sex" column="SEX"  jdbcType="DECIMAL"></result>
+      <result property="birthday" column="BIRTHDAY"></result>
+    </association>
+  </resultMap>
+
+  <resultMap id="AccountResultMap" type="account">
+    <result column="ACCOUNT_ID" property="id" jdbcType="DECIMAL" />
+    <result column="ACCOUNT_NAME" property="name" jdbcType="VARCHAR" />
+    <result column="ACCOUNT_PASSWORD" property="password" jdbcType="VARCHAR" />
+    <result column="ACCOUNT_STATUS" property="status" jdbcType="DECIMAL" />
+    <association property="userInfo" column="USER_ID" javaType="com.xx.common.entity.UserInfo" resultMap="UserInfoResultMap"/>
+  </resultMap>
+
+  <resultMap id="UserInfoResultMap" type="com.xx.common.entity.UserInfo" >
+    <result column="ID" property="id" jdbcType="DECIMAL" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="BIRTHDAY" property="birthday" jdbcType="DATE" />
+    <result column="SEX" property="sex" jdbcType="DECIMAL" typeHandler="EnumCodeHandler" />
+    <result column="EMAIL" property="email" jdbcType="VARCHAR" />
+  </resultMap>
+
+
+
+
+  <insert id="insert" parameterType="com.xx.common.entity.Account">
+    <selectKey keyProperty="id" resultType="int" order="BEFORE">
+      SELECT SEQ_ACCOUNT_ID.NEXTVAL FROM DUAL
+    </selectKey>
+    insert into ACCOUNT (ID, NAME, PASSWORD,
+      STATUS)
+    values (#{id,jdbcType=DECIMAL}, #{name,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+      #{status,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.xx.common.entity.Account" >
+    insert into ACCOUNT
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        ID,
+      </if>
+      <if test="name != null" >
+        NAME,
+      </if>
+      <if test="password != null" >
+        PASSWORD,
+      </if>
+      <if test="status != null" >
+        STATUS,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=DECIMAL},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+
+  <select id="selectById" resultMap="AccountResultMap" parameterType="Integer">
+    SELECT * FROM ACCOUNT WHERE ID = #{ID}
+  </select>
+
+  <select id="selectById2" resultMap="AccountResultMap" parameterType="Integer">
+    SELECT A.ID ACCOUNT_ID,A.NAME ACCOUNT_NAME,A.PASSWORD ACCOUNT_PASSWORD,A.STATUS ACCOUNT_STATUS ,U.ID ID,U.NAME NAME,U.BIRTHDAY BIRTHDAY,U.SEX SEX,U.EMAIL EMAIL FROM ACCOUNT A , USER_INFO U WHERE A.USER_ID = U.ID AND A.ID = #{ID}
+  </select>
+
+  <select id="selectResultMapById" resultType="map">
+    SELECT ID,name FROM ACCOUNT WHERE ID = #{ID}
+  </select>
+
+  <select id="selectUserInfoById" resultMap="UserInfoResultMap">
+    SELECT * FROM USER_INFO WHERE ID = #{ID}
+  </select>
+</mapper>
